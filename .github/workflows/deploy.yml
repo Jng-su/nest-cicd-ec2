@@ -9,6 +9,23 @@ jobs:
   Deploy_v1:
     runs-on: ubuntu-latest
     steps:
+      - name: Github Respository Clone
+        uses: actions/checkout@v4
+
+      - name: Node.js v20 Install
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: NPM Install
+        run: npm ci
+
+      - name: Create .env File
+        run: echo "${{ secrets.ENV }}" > .env
+
+      - name: Test Run
+        run: npm run test
+
       - name: SSH로 EC2 접속하기
         uses: appleboy/ssh-action@v1.2.1
         env:
@@ -17,6 +34,7 @@ jobs:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USERNAME }}
           key: ${{ secrets.EC2_PRIVATE_KEY }}
+          envs: ENV
           script-stop: true
           script: |
             cd /home/ubuntu/nest-cicd-ec2
